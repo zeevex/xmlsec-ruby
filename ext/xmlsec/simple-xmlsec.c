@@ -83,9 +83,7 @@ xmlSecAppAddIDAttr(xmlNodePtr node, const xmlChar* attrName, const xmlChar* node
 int verify_file(const char* xmlMessage, const char* key) {
   xmlDocPtr doc = NULL;
   /* Init libxml and libxslt libraries */
-  xmlInitParser();
   LIBXML_TEST_VERSION
-    xmlLoadExtDtdDefaultValue = XML_DETECT_IDS | XML_COMPLETE_ATTRS;
   xmlSubstituteEntitiesDefault(1);
   doc = xmlParseDoc((xmlChar *) xmlMessage) ;
   return verify_document(doc, key);
@@ -171,21 +169,6 @@ int initialize()
     return(-1);
   }
  
-  /* Load default crypto engine if we are supporting dynamic
-   * loading for xmlsec-crypto libraries. Use the crypto library
-   * name ("openssl", "nss", etc.) to load corresponding
-   * xmlsec-crypto library.
-   */
-#ifdef XMLSEC_CRYPTO_DYNAMIC_LOADING
-  if(xmlSecCryptoDLLoadLibrary(BAD_CAST XMLSEC_CRYPTO) < 0) {
-    fprintf(stdout, "Error: unable to load default xmlsec-crypto library. Make sure\n"
-            "that you have it installed and check shared libraries path\n"
-            "(LD_LIBRARY_PATH) envornment variable.\n");
-    fflush(stdout) ;
-    return(-1);    
-  }
-#endif /* XMLSEC_CRYPTO_DYNAMIC_LOADING */
- 
   /* Init xmlsec-crypto library */
   if(xmlSecCryptoInit() < 0) {
     fprintf(stderr, "Error: xmlsec-crypto initialization failed.\n");
@@ -205,11 +188,5 @@ void SecShutdown()
   
   /* Shutdown xmlsec library */
   xmlSecShutdown();
-  
-  /* Shutdown libxslt/libxml */
-#ifndef XMLSEC_NO_XSLT
-  xsltCleanupGlobals();            
-#endif /* XMLSEC_NO_XSLT */
-  xmlCleanupParser();
   return ;
 }
