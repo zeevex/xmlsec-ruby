@@ -147,21 +147,17 @@ int initialize()
             
   /* Init xmlsec library */
   if(xmlSecInit() < 0) {
-    fprintf(stdout, "Error: xmlsec initialization failed.\n");
-    fflush(stdout) ;
-    return(-1);
+    rb_raise(rb_eRuntimeError, "xmlsec initialization failed");
   }
  
   /* Check loaded library version */
   if(xmlSecCheckVersion() != 1) {
-    fprintf(stderr, "Error: loaded xmlsec library version is not compatible.\n");
-    return(-1);
+    rb_raise(rb_eRuntimeError, "loaded xmlsec library version is not compatible");
   }
  
   /* Init xmlsec-crypto library */
   if(xmlSecCryptoInit() < 0) {
-    fprintf(stderr, "Error: xmlsec-crypto initialization failed.\n");
-    return(-1);
+    rb_raise(rb_eRuntimeError, "xmlsec-crypto initialization failed");
   }
   xmlSecErrorsSetCallback(xmlSecErrorCallback);
 }
