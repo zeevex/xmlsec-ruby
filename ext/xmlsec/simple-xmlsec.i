@@ -9,7 +9,4 @@ Data_Get_Struct($input, xmlDocPtr, doc);
 $1 = doc;
 }
 
-int verify_file(const char* xmlMessage, const char* key); 
-int verify_document(xmlDocPtr doc, const char* key);
-int sign_file(const char* xmlMessage, const char* key);
-int sign_document(xmlDocPtr doc, const char* key);
+%include simple-xmlsec.h

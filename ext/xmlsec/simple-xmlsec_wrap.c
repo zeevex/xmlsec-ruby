@@ -1818,6 +1818,26 @@ static VALUE mXmlsec;
 #include <libxml/tree.h>
 
 
+#include <limits.h>
+#if !defined(SWIG_NO_LLONG_MAX)
+# if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
+#   define LLONG_MAX __LONG_LONG_MAX__
+#   define LLONG_MIN (-LLONG_MAX - 1LL)
+#   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
+# endif
+#endif
+
+
+  #define SWIG_From_long   LONG2NUM 
+
+
+SWIGINTERNINLINE VALUE
+SWIG_From_int  (int value)
+{    
+  return SWIG_From_long  (value);
+}
+
+
 SWIGINTERN swig_type_info*
 SWIG_pchar_descriptor(void)
 {
@@ -1871,25 +1891,38 @@ SWIG_AsCharPtrAndSize(VALUE obj, char** cptr, size_t* psize, int *alloc)
 
 
 
-
-#include <limits.h>
-#if !defined(SWIG_NO_LLONG_MAX)
-# if !defined(LLONG_MAX) && defined(__GNUC__) && defined (__LONG_LONG_MAX__)
-#   define LLONG_MAX __LONG_LONG_MAX__
-#   define LLONG_MIN (-LLONG_MAX - 1LL)
-#   define ULLONG_MAX (LLONG_MAX * 2ULL + 1ULL)
-# endif
-#endif
-
-
-  #define SWIG_From_long   LONG2NUM 
-
-
-SWIGINTERNINLINE VALUE
-SWIG_From_int  (int value)
-{    
-  return SWIG_From_long  (value);
+SWIGINTERN VALUE
+_wrap_verify_document(int argc, VALUE *argv, VALUE self) {
+  xmlDocPtr arg1 ;
+  char *arg2 = (char *) 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int result;
+  VALUE vresult = Qnil;
+  
+  if ((argc < 2) || (argc > 2)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
+  }
+  {
+    xmlDocPtr doc;
+    Data_Get_Struct(argv[0], xmlDocPtr, doc);
+    arg1 = doc;
+  }
+  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","verify_document", 2, argv[1] ));
+  }
+  arg2 = (char *)(buf2);
+  result = (int)verify_document(arg1,(char const *)arg2);
+  vresult = SWIG_From_int((int)(result));
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return vresult;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return Qnil;
 }
+
 
 SWIGINTERN VALUE
 _wrap_verify_file(int argc, VALUE *argv, VALUE self) {
@@ -1924,39 +1957,6 @@ _wrap_verify_file(int argc, VALUE *argv, VALUE self) {
   return vresult;
 fail:
   if (alloc1 == SWIG_NEWOBJ) free((char*)buf1);
-  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
-  return Qnil;
-}
-
-
-SWIGINTERN VALUE
-_wrap_verify_document(int argc, VALUE *argv, VALUE self) {
-  xmlDocPtr arg1 ;
-  char *arg2 = (char *) 0 ;
-  int res2 ;
-  char *buf2 = 0 ;
-  int alloc2 = 0 ;
-  int result;
-  VALUE vresult = Qnil;
-  
-  if ((argc < 2) || (argc > 2)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 2)",argc); SWIG_fail;
-  }
-  {
-    xmlDocPtr doc;
-    Data_Get_Struct(argv[0], xmlDocPtr, doc);
-    arg1 = doc;
-  }
-  res2 = SWIG_AsCharPtrAndSize(argv[1], &buf2, NULL, &alloc2);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), Ruby_Format_TypeError( "", "char const *","verify_document", 2, argv[1] ));
-  }
-  arg2 = (char *)(buf2);
-  result = (int)verify_document(arg1,(char const *)arg2);
-  vresult = SWIG_From_int((int)(result));
-  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
-  return vresult;
-fail:
   if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
   return Qnil;
 }
@@ -2310,8 +2310,9 @@ SWIGEXPORT void Init_xmlsec(void) {
   }
   
   SWIG_RubyInitializeTrackings();
-  rb_define_module_function(mXmlsec, "verify_file", _wrap_verify_file, -1);
+  rb_define_const(mXmlsec, "SIMPLE_XMLSEC_H_INCLUDED", SWIG_From_int((int)(1)));
   rb_define_module_function(mXmlsec, "verify_document", _wrap_verify_document, -1);
+  rb_define_module_function(mXmlsec, "verify_file", _wrap_verify_file, -1);
   rb_define_module_function(mXmlsec, "sign_file", _wrap_sign_file, -1);
   rb_define_module_function(mXmlsec, "sign_document", _wrap_sign_document, -1);
 }

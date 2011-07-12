@@ -17,12 +17,10 @@
 #include <xmlsec/bn.h>
 
 
-int initialize();
-void SecShutdown();
-void cleanup(xmlSecDSigCtxPtr dsigCtx) ;
-int verify_document(xmlDocPtr doc, const char* key);
-int verify_file(const char* xmlMessage, const char* key);
-void xmlSecErrorCallback(const char* file, int line, const char* func, const char* errorObject, const char* errorSubject, int reason, const char* msg);
+static int  initialize();
+static void SecShutdown();
+static void cleanup(xmlSecDSigCtxPtr dsigCtx) ;
+static void xmlSecErrorCallback(const char* file, int line, const char* func, const char* errorObject, const char* errorSubject, int reason, const char* msg);
 
 
 int
