@@ -135,6 +135,85 @@ int verify_document(xmlDocPtr doc, const char* key) {
   return res;
 }
 
+int
+sign_file(const char* xmlMessage, const char* key) {
+  xmlDocPtr doc = NULL;
+
+  /* Init libxml and libxslt libraries */
+  LIBXML_TEST_VERSION
+  xmlSubstituteEntitiesDefault(1);
+
+  doc = xmlParseDoc((xmlChar *) xmlMessage);
+  return sign_document(doc, key);
+}
+
+/**
+ * sign_file:
+ * @doc:		the signature template.
+ * @key:		the PEM private key.
+ *
+ * Signs the #doc using private key from #key.
+ *
+ * Returns 1 on success or raises an exception if an error occurs.
+ */
+int
+sign_document(xmlDocPtr doc, const char* key) {
+  xmlNodePtr node          = NULL;
+  xmlSecDSigCtxPtr dsigCtx = NULL;
+
+#define DUMP_DOC 0
+#if DUMP_DOC
+  xmlChar *formatted = NULL;
+  int sz = 0;
+#endif
+
+  initialize();
+
+  if ((doc == NULL) || (xmlDocGetRootElement(doc) == NULL)){
+    rb_raise(rb_eRuntimeError, "unable to parse doc");
+  }
+
+  /* find start node */
+  node = xmlSecFindNode(xmlDocGetRootElement(doc), xmlSecNodeSignature, xmlSecDSigNs);
+  if (node == NULL) {
+    rb_raise(rb_eRuntimeError, "start node not found in doc");
+  }
+
+  if (assign_id_attributes(doc) < 0) {
+    rb_raise(rb_eRuntimeError, "Could not find ID attribute in document");
+  }
+
+  /* create signature context, no key manager */
+  dsigCtx = xmlSecDSigCtxCreate(NULL);
+  if (dsigCtx == NULL) {
+    rb_raise(rb_eRuntimeError, "failed to create signature context");
+  }
+
+  /* load private key, assuming that there is no password */
+  dsigCtx->signKey = xmlSecCryptoAppKeyLoadMemory(key, strlen(key), xmlSecKeyDataFormatPem, NULL, NULL, NULL);
+  if (dsigCtx->signKey == NULL) {
+    cleanup(dsigCtx);
+    rb_raise(rb_eRuntimeError,"failed to load pem key");
+  }
+
+  /* sign the template */
+  if (xmlSecDSigCtxSign(dsigCtx, node) < 0) {
+    cleanup(dsigCtx);
+    rb_raise(rb_eRuntimeError,"signature failed");
+  }
+
+#if DUMP_DOC
+  formatted = NULL;
+  sz = 0;
+  xmlDocDumpFormatMemory(doc, &formatted, &sz, 1);
+  fputs(formatted, stdout);
+  xmlFree(formatted);
+#endif
+
+  cleanup(dsigCtx);
+  return 1;
+}
+
 void cleanup(xmlSecDSigCtxPtr dsigCtx) {
   if(dsigCtx != NULL) {
     xmlSecDSigCtxDestroy(dsigCtx);
