@@ -6,7 +6,7 @@ if pkg_config('xmlsec1-openssl')
 	if `uname -p`.match 'x86_64'
 		$CFLAGS += " -DXMLSEC_NO_SIZE_T"
 	end
-	create_makefile('xmlsec')
+	create_makefile('xmlsec_ruby')
 else
 	puts "xmlsec1 is not installed."
 end

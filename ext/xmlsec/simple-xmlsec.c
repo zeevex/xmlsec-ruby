@@ -258,3 +258,7 @@ SecShutdown() {
   xmlSecShutdown();
   return ;
 }
+
+void Init_xmlsec_ruby()
+{
+}

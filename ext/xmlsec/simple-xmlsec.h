@@ -14,6 +14,7 @@ extern int verify_document(xmlDocPtr doc, const char* key);
 extern int verify_file(const char* xmlMessage, const char* key);
 extern int sign_file(const char* xmlMessage, const char* key);
 extern int sign_document(xmlDocPtr doc, const char* key);
+extern void Init_xmlsec_ruby();
 
 #ifdef __cplusplus
 }

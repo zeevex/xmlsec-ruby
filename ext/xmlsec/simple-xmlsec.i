@@ -1,6 +1,10 @@
 %module xmlsec
 %{ 
-#include <libxml/tree.h>
+require 'ffi'
+
+module Xmlsec
+  ffi_lib [File.expand_path(File.join(File.dirname(__FILE__), 'xmlsec_ruby.bundle')), 'xmlsec_ruby']
+  xmlDocPtr = :pointer
 %}
 
 %typemap(in) xmlDocPtr {
@@ -10,3 +14,7 @@ $1 = doc;
 }
 
 %include simple-xmlsec.h
+
+%{
+end
+%}
